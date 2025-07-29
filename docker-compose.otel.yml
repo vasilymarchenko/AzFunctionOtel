@@ -1,0 +1,50 @@
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes:
+      - ./infra/otel-config.yaml:/etc/otel/config.yaml
+      - ./log:/log/otel
+    ports:
+      - 1888:1888
+      - 8888:8888
+      - 8889:8889
+      - 13133:13133
+      - 4317:4317
+      - 4318:4318
+      - 4319:4319
+      - 4320:4320
+      - 4321:4321
+      - 4322:4322
+      - 55679:55679
+
+  tempo:
+    image: grafana/tempo:2.4.0
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./infra/tempo.yaml:/etc/tempo.yaml
+    ports:
+      - "3200:3200"
+
+  prometheus:
+    image: prom/prometheus:v2.42.0
+    volumes:
+      - ./infra/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9091:9090"
+
+  loki:
+    image: grafana/loki:3.4
+    ports:
+      - "3100:3100"
+
+  grafana:
+    image: grafana/grafana:12.0.0
+    volumes:
+      - ./infra/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+    ports:
+      - "3000:3000"
+

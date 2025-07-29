@@ -1,0 +1,80 @@
+extensions:
+  health_check:
+  zpages:
+    endpoint: :55679
+
+receivers:
+  otlp/traces:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4317"
+      http:
+        endpoint: "0.0.0.0:4318"
+  otlp/metrics:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4319"
+      http:
+        endpoint: "0.0.0.0:4320"
+  otlp/logs:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4321"
+      http:
+        endpoint: "0.0.0.0:4322"
+  zipkin:
+
+processors:
+  batch:
+
+exporters:
+  debug:
+    verbosity: detailed
+  file/traces:
+    path: /log/otel/traces.log
+  file/metrics:
+    path: /log/otel/metrics.log
+  file/logs:
+    path: /log/otel/logs.log
+  otlp/tempo:
+    endpoint: "tempo:4317"
+    tls:
+      insecure: true
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+  otlphttp:
+    endpoint: http://loki:3100/otlp
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    traces:
+      receivers:
+        - otlp/traces
+        - zipkin
+      processors: [batch]
+      exporters:
+        - debug 
+        - file/traces
+        - otlp/tempo
+    metrics:
+      receivers:
+        - otlp/metrics
+      processors: [batch]
+      exporters:
+        - debug 
+        - file/metrics
+        - prometheus
+    logs:
+      receivers:
+        - otlp/logs
+      processors: [batch]
+      exporters:
+        - debug 
+        - file/logs
+        - otlphttp
+  extensions:
+    - health_check
+    - zpages
+

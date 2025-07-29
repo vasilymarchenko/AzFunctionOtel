@@ -1,0 +1,14 @@
+services:
+  functionapp1:
+    image: ${DOCKER_REGISTRY-}functionapp1
+    build:
+      context: .
+      dockerfile: FunctionApp1/Dockerfile
+    ports:
+      - 7071:80
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=FunctionApp1
+      - OTEL_SERVICE_VERSION=1.0.0
+    depends_on:
+      - otel-collector
