@@ -28,8 +28,11 @@ builder.Services.AddOpenTelemetry()
         }))
     .WithMetrics(metrics => metrics
         .AddMeter(serviceName)
+        .AddMeter("System.Runtime") // Add System.Runtime meter for .NET runtime metrics
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
+        .AddRuntimeInstrumentation()
+        .AddProcessInstrumentation()
         .AddOtlpExporter(options =>
         {
             options.Endpoint = new Uri("http://otel-collector:4319");
