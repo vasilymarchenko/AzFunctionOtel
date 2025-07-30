@@ -37,6 +37,6 @@ builder.Services.AddOpenTelemetry()
         {
             options.Endpoint = new Uri("http://otel-collector:4319");
         })
-        .AddPrometheusExporter());
+        );
 
 builder.Build().Run();
